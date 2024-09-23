@@ -36,6 +36,7 @@ let objectRotator;  // The sphere is a child of this object; rotating
                     // this object about the y-axis rotates the sphere.
 
 let animating = false;  // This is set to true when an animation is running.
+let darkMode = false;
 
 
 
@@ -210,14 +211,20 @@ function doAnimateCheckbox() {
 	}
 }
 
-let darkCheck = document.querySelector("#dark-mode");
-darkCheck.addEventListener("click", function(){
-    if (this.checked === true){
-        alert("!!!")
-    } else{
-        doLightMode()
-    }
-});
+function doDark() {
+    let dark = document.getElementById("dark-mode").checked;
+	if (dark != darkMode) {
+		darkMode = dark;
+		if (darkMode) {
+			doDarkMode();
+            render()
+		} else{
+            doLightMode()
+            render()
+        }
+	}
+}
+
 
 
 //----------------------------- keyboard support ----------------------------------
@@ -268,6 +275,8 @@ function init() {
 	document.addEventListener("keydown", doKey, false);
 	document.getElementById("animate").checked = false;
 	document.getElementById("animate").onchange = doAnimateCheckbox;
+    document.getElementById("dark-mode").checked = false;
+    document.getElementById("dark-mode").onchange = doDark;
 	createWorld();
 	render();
 }

@@ -7,33 +7,17 @@
 <script src="three.min.js"></script>
 <script defer>
 
-/* This is a starter file for experimenting with 3D animated models
- * in three.js.  The user can rotate the model using the keyboard, and
- * can turn animation on and off.  As an example, it shows  a sphere
- * rotating around a cube.
- *
- * To make your own model, add any global variables that you need for
- * animating the model, build the model in the createWorld() function,
- * and update the animation variables in the updateForFrame() function.
- *
- * For a more complex modeling example using this framework,
- * see diskworld-1.html.
- */
-
 "use strict";
 
-let scene, camera, renderer;  // Three.js rendering basics.
+let scene, camera, renderer;
 
-let canvas;  // The canvas on which the image is rendered.
-
+let canvas;
 
 let model;   // Contains the visible objects in the scene, but
              // not the lights or camera.  The model can be
 			 // rotated using the keyboard. 
 
-// Nodes in the scene graphs that are modified as part of the animation:
-let objectRotator;  // The sphere is a child of this object; rotating
-                    // this object about the y-axis rotates the sphere.
+let objectRotator;
 
 let animating = false;  // This is set to true when an animation is running.
 let darkMode = false;
@@ -43,46 +27,35 @@ let overheadLight2;
 let viewpointLight1;
 let viewpointLight2;
 
-
-
-/*  Create the scene graph.  This function is called once, as soon as the page loads.
- *  The renderer has already been created before this function is called.
- */
 function createWorld() {
-    renderer.setClearColor( 0xFDEDEC );  // Set background color (0x444444 is dark gray).
+    renderer.setClearColor( 0xFDEDEC );  // Set background color
 	scene = new THREE.Scene();
 	
-	// create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
 	camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 1, 30);
 	camera.position.z = 15;
 	
-    // create some lights and add them to the scene.
 	overheadLight1 = new THREE.DirectionalLight( 0xffffff, 0.8);
 	overheadLight2 = new THREE.DirectionalLight( 0xffffff, 0.8);
-
-	scene.add( overheadLight1 ); // dim light shining from above
+	scene.add( overheadLight1 );
 	scene.add( overheadLight2 );
 
-	viewpointLight1 = new THREE.DirectionalLight( 0xffffff, 0.8 );  // a light to shine in the direction the camera faces
-	viewpointLight1.position.set(0,0,1);  // shines down the z-axis
-	scene.add(viewpointLight1);
-
-	viewpointLight2 = new THREE.DirectionalLight( 0xffffff, 0.8 );  // a light to shine in the direction the camera faces
-	viewpointLight1.position.set(0,0,1);  // shines down the z-axis
-	scene.add(viewpointLight2);
-
-	scene.remove()
+	viewpointLight1 = new THREE.DirectionalLight( 0xffffff, 0.8 );
+	viewpointLight1.position.set(0,0,1);  
 	
-	// create the model
+	viewpointLight2 = new THREE.DirectionalLight( 0xffffff, 0.8 );
+	viewpointLight2.position.set(0,0,1);
+
+	scene.add(viewpointLight1);
+	scene.add(viewpointLight2);
 
 	model = new THREE.Object3D();
 
-    model.add( new THREE.Mesh(  // A tall narrow cylinder on the axis of rotation
+    model.add( new THREE.Mesh(
         new THREE.CylinderGeometry(0.1,0.1,8),
 		new THREE.MeshLambertMaterial({ color: "black" })
 	));
 
-	let cube = ( new THREE.Mesh(  // add a big cube at the origin; the cube is not animated
+	let cube = ( new THREE.Mesh(
 	    new THREE.BoxGeometry(1.5,1.5,1.5),
 		new THREE.MeshPhongMaterial({
 		    color: 0xF45B69,
@@ -167,23 +140,15 @@ function createWorld() {
     objectRotator.add(plane);
 	model.add(objectRotator);
 
-	model.rotation.set(0.2,0,0); // Tip it forward a bit, so we're not looking at it edge-on.
+	model.rotation.set(0.2,0,0);
 	
 	scene.add(model);
 }
 
-
-/*  Render the scene.  This is called for each frame of the animation.
- */
 function render() {
     renderer.render(scene, camera);
 }
 
-
-/*  When an animation is in progress, this function is called just before rendering each
- *  frame of the animation, to make any changes necessary in the scene graph to prepare
- *  for that frame.
- */
 function updateForFrame() {
     objectRotator.rotation.y -= 0.03;
 }
@@ -204,14 +169,6 @@ function doLightMode(){
 	viewpointLight2.intensity = .8;
 }
 
-
-//--------------------------- animation support -----------------------------------
-
-/* This function runs the animation by calling updateForFrame() then calling render().
- * Finally, it arranges for itself to be called again to do the next frame.  When the
- * value of animating is set to false, this function does not schedule the next frame,
- * so the animation stops.
- */
 function doFrame() {
     if (animating) {
         updateForFrame();
@@ -220,10 +177,6 @@ function doFrame() {
 	}
 }
 
-
-/* Responds when the setting of the "Animate" checkbox is changed.  This
- * function will start or stop the animation, depending on its setting.
- */
 function doAnimateCheckbox() {
     let anim = document.getElementById("animate").checked;
 	if (anim != animating) {
@@ -248,12 +201,6 @@ function doDark() {
 	}
 }
 
-
-
-//----------------------------- keyboard support ----------------------------------
-
-/*  Responds to user's key press.  Here, it is used to rotate the model.
- */
 function doKey(event) {
 	let code = event.keyCode;
 	let rotated = true;
@@ -268,20 +215,13 @@ function doKey(event) {
 	    default: rotated = false;
 	}
 	if (rotated) {
-		event.preventDefault();  // Prevent keys from scrolling the page.
-		if (!animating) { // (if an animation is running, no need for an extra render)
+		event.preventDefault();
+		if (!animating) {
 			render();
 		}
 	}
 }
 
-
-
-//----------------------------------------------------------------------------------
-
-/**
- *  This init() function is called when by the onload event when the document has loaded.
- */
 function init() {
 	try {
 	    canvas = document.getElementById("glcanvas");

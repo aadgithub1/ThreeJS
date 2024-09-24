@@ -202,7 +202,7 @@
 				viewpointLight2.intensity = .6;
 			}
 
-			//Root function to run dark mode
+			//Root function to render in dark mode or light mode
 			function doDark() {
 				let dark = document.getElementById("dark-mode").checked;
 				if (dark != darkMode) {
@@ -253,6 +253,7 @@
 							"<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
 					return;
 				}
+				
 				//Add eventlistener and watch for state change of checkbox
 				document.addEventListener("keydown", doKey, false);
 				document.getElementById("animate").checked = false;

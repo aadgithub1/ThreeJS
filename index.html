@@ -1,3 +1,18 @@
+<!--
+index.html.java
+Aaron D. Webb
+Sep 24 2024
+CMSC405
+This HTML file and enclosed script create
+a unique 3D scene of shape rotating about
+an axis and two rings, each sitting on a
+"beam", also rotating about the axis.
+The light can be toggled with the "dark mode"
+checkbox. By default the light is intense and involves
+two overhead lights and two lights shining down the
+z-axis. Dark mode reduces the intensity of the lights
+and changes the background color to black.
+-->
 <!DOCTYPE html>
 	<head>
 		<meta charset="UTF-8">
@@ -253,7 +268,7 @@
 							"<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
 					return;
 				}
-				
+
 				//Add eventlistener and watch for state change of checkbox
 				document.addEventListener("keydown", doKey, false);
 				document.getElementById("animate").checked = false;

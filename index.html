@@ -1,266 +1,285 @@
 <!DOCTYPE html>
-<head>
-<meta charset="UTF-8">
-<title>Three.js Modeling</title>
-<style>
-</style>
-<script src="three.min.js"></script>
-<script defer>
+	<head>
+		<meta charset="UTF-8">
+		<title>Three.js Modeling</title>
+		<style>
+		</style>
+		<script src="three.min.js"></script>
+		<script defer>
 
-"use strict";
+			"use strict";
 
-let scene, camera, renderer;
+			let scene, camera, renderer;
 
-let canvas;
+			let canvas;
 
-let model;   // Contains the visible objects in the scene, but
-             // not the lights or camera.  The model can be
-			 // rotated using the keyboard. 
+			let model;   // Contains all visible objects in the scene 
 
-let objectRotator;
+			let objectRotator; //3D Object used to hold the shapes
+							   //This object gets rotated therby rotating its children 
 
-let animating = false;  // This is set to true when an animation is running.
-let darkMode = false;
+			let animating = false;	// This is set to true when an animation is running.
+			let darkMode = false;	//Set to to true when Dark Mode should be on
 
-let overheadLight1;
-let overheadLight2;
-let viewpointLight1;
-let viewpointLight2;
+			//Declare lights globall so we can use scene.remove(object) in a function 
+			let overheadLight1;
+			let overheadLight2;
+			let viewpointLight1;
+			let viewpointLight2;
 
-function createWorld() {
-    renderer.setClearColor( 0xFDEDEC );  // Set background color
-	scene = new THREE.Scene();
-	
-	camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 1, 30);
-	camera.position.z = 15;
-	
-	overheadLight1 = new THREE.DirectionalLight( 0xffffff, 0.8);
-	overheadLight2 = new THREE.DirectionalLight( 0xffffff, 0.8);
-	scene.add( overheadLight1 );
-	scene.add( overheadLight2 );
+			function createWorld() { //Add all components to the scnene
+				renderer.setClearColor( 0xFDEDEC );  // Set background color
+				scene = new THREE.Scene();
+				
+				//Create camera (not part of scene)
+				camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 1, 30);
+				camera.position.z = 15;
+				
+				//Assign white overhead lights, add to scene
+				overheadLight1 = new THREE.DirectionalLight( 0xffffff, 0.6);
+				overheadLight2 = new THREE.DirectionalLight( 0xffffff, 0.6);
+				scene.add( overheadLight1 );
+				scene.add( overheadLight2 );
 
-	viewpointLight1 = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	viewpointLight1.position.set(0,0,1);  
-	
-	viewpointLight2 = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	viewpointLight2.position.set(0,0,1);
+				//Assign white directional (z-axis) lights, add to scene
+				viewpointLight1 = new THREE.DirectionalLight( 0xffffff, 0.6 );
+				viewpointLight1.position.set(0,0,1); 
 
-	scene.add(viewpointLight1);
-	scene.add(viewpointLight2);
+				viewpointLight2 = new THREE.DirectionalLight( 0xffffff, 0.6 );
+				viewpointLight2.position.set(0,0,1);
 
-	model = new THREE.Object3D();
+				scene.add(viewpointLight1);
+				scene.add(viewpointLight2);
 
-    model.add( new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1,0.1,8),
-		new THREE.MeshLambertMaterial({ color: "black" })
-	));
+				//Assign model, add central cylinder representing axis of rotation
+				model = new THREE.Object3D();
 
-	let cube = ( new THREE.Mesh(
-	    new THREE.BoxGeometry(1.5,1.5,1.5),
-		new THREE.MeshPhongMaterial({
-		    color: 0xF45B69,
-			specular: 0x101000,
-			shininess: 32
-		})
-	));
-	
-	let sphere = new THREE.Mesh(
-	    new THREE.SphereGeometry(1,32,16),
-		new THREE.MeshPhongMaterial({
-		    color: 0x52489C,
-			specular: 0x101010,
-			shininess: 32
-		})
-	);
+				model.add( new THREE.Mesh(
+					new THREE.CylinderGeometry(0.1,0.1,8),
+					new THREE.MeshLambertMaterial({ color: "black" })
+				));
 
-    let cone = new THREE.Mesh(
-	    new THREE.CylinderGeometry(0,1,1.8,100),
-		new THREE.MeshPhongMaterial({
-		    color: 0x143109,
-			specular: 0x101010,
-			shininess: 32
-		})
-	);
+				//Declare and assign shapes
+				let cube = ( new THREE.Mesh(
+					new THREE.BoxGeometry(1.5,1.5,1.5),
+					new THREE.MeshPhongMaterial({
+						color: 0xF45B69,
+						specular: 0x101000,
+						shininess: 32
+					})
+				));
+				
+				let sphere = new THREE.Mesh(
+					new THREE.SphereGeometry(1,32,16),
+					new THREE.MeshPhongMaterial({
+						color: 0x52489C,
+						specular: 0x101010,
+						shininess: 32
+					})
+				);
 
-    let plane = new THREE.Mesh(
-	    new THREE.PlaneGeometry(2, 2, 50,50),
-		new THREE.MeshPhongMaterial({
-		    color: 0x59C3C3,
-			specular: 0x101010,
-			shininess: 32,
-            side: THREE.DoubleSide
-		})
-	);
+				let cone = new THREE.Mesh(
+					new THREE.CylinderGeometry(0,1,1.8,100),
+					new THREE.MeshPhongMaterial({
+						color: 0x143109,
+						specular: 0x101010,
+						shininess: 32
+					})
+				);
 
-    let ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.75, 0.3, 16, 100),
-        new THREE.MeshPhongMaterial({
-		    color: "gold",
-			specular: 0x101010,
-			shininess: 20
-		})
-    );
+				let plane = new THREE.Mesh(
+					new THREE.PlaneGeometry(2, 2, 50,50),
+					new THREE.MeshPhongMaterial({
+						color: 0x59C3C3,
+						specular: 0x101010,
+						shininess: 32,
+						side: THREE.DoubleSide
+					})
+				);
 
-    let ring2 = new THREE.Mesh(
-        new THREE.TorusGeometry(0.75, 0.3, 16, 100),
-        new THREE.MeshPhongMaterial({
-		    color: "silver",
-			specular: 0x101010,
-			shininess: 20
-		})
-    );
+				let ring = new THREE.Mesh(
+					new THREE.TorusGeometry(0.75, 0.3, 16, 100),
+					new THREE.MeshPhongMaterial({
+						color: "gold",
+						specular: 0x101010,
+						shininess: 20
+					})
+				);
 
-    let ringBeam = new THREE.Mesh(
-        new THREE.BoxGeometry(0.75, 0.3, 8),
-        new THREE.MeshPhongMaterial({
-		    color: "black",
-			specular: 0x101010,
-			shininess: 20
-		})
-    );
+				let ring2 = new THREE.Mesh(
+					new THREE.TorusGeometry(0.75, 0.3, 16, 100),
+					new THREE.MeshPhongMaterial({
+						color: "silver",
+						specular: 0x101010,
+						shininess: 20
+					})
+				);
 
-    cube.position.x = -3;
-    cube.position.y = 3;
-	sphere.position.x = 3;
-    sphere.position.y = 3;
-    cone.position.z = 3;
-    cone.position.y = 3;
-    plane.position.z = -3;
-    plane.position.y = 3;
-    ring.position.z = 3;
-    ring2.position.z = -3;
+				let ringBeam = new THREE.Mesh(
+					new THREE.BoxGeometry(0.75, 0.3, 8),
+					new THREE.MeshPhongMaterial({
+						color: "black",
+						specular: 0x101010,
+						shininess: 20
+					})
+				);
+				
+				//Set explicit positions of shapes (offset)
+				cube.position.x = -3;
+				cube.position.y = 3;
+				sphere.position.x = 3;
+				sphere.position.y = 3;
+				cone.position.z = 3;
+				cone.position.y = 3;
+				plane.position.z = -3;
+				plane.position.y = 3;
+				ring.position.z = 3;
+				ring2.position.z = -3;
+				
+				//Assign object rotator as 3D Object, add all shapes to rotate them
+				objectRotator = new THREE.Object3D();
+				objectRotator.add(cube);
+				objectRotator.add(sphere);
+				objectRotator.add(cone);
+				objectRotator.add(ring);
+				objectRotator.add(ring2);
+				objectRotator.add(ringBeam);
+				objectRotator.add(plane);
+				model.add(objectRotator); //Add objectRotator (which has the shapes as children) to model
 
-	objectRotator = new THREE.Object3D();
-    objectRotator.add(cube);
-	objectRotator.add(sphere);
-    objectRotator.add(cone);
-    objectRotator.add(ring);
-    objectRotator.add(ring2);
-    objectRotator.add(ringBeam);
-    objectRotator.add(plane);
-	model.add(objectRotator);
+				model.rotation.set(0.2,0,0); //Tip forward for better view
+				
+				scene.add(model); //Add model (which has objectRotator) to scene
+			}
 
-	model.rotation.set(0.2,0,0);
-	
-	scene.add(model);
-}
+			//Called to render the scene graph
+			function render() {
+				renderer.render(scene, camera);
+			}
 
-function render() {
-    renderer.render(scene, camera);
-}
+			//Called when animation should be happening (checkbox)
+			function updateForFrame() {
+				objectRotator.rotation.y -= 0.03;
+			}
 
-function updateForFrame() {
-    objectRotator.rotation.y -= 0.03;
-}
+			//Called when animation should be happening;
+			//calls method to change y value (rotate scene),
+			//renders, passes itself to be animated again
+			function doFrame() {
+				if (animating) {
+					updateForFrame();
+					render();
+					requestAnimationFrame(doFrame); 
+				}
+			}
 
-function doDarkMode(){
-    renderer.setClearColor( "black" );
-	overheadLight1.intensity = .1;
-	overheadLight2.intensity = .1;
-	viewpointLight1.intensity = .4;
-	viewpointLight2.intensity = .4;	
-}
+			//Root function to make animation run
+			function doAnimateCheckbox() {
+				let anim = document.getElementById("animate").checked;
+				if (anim != animating) {
+					animating = anim;
+					if (animating) {
+						doFrame();
+					}
+				}
+			}
 
-function doLightMode(){
-    renderer.setClearColor( 0xFDEDEC );
-	overheadLight1.intensity = .8;
-	overheadLight2.intensity = .8;
-	viewpointLight1.intensity = .8;
-	viewpointLight2.intensity = .8;
-}
+			//Called when dark mode should be on (checkbox)
+			function doDarkMode(){
+				renderer.setClearColor( "black" );
+				overheadLight1.intensity = .1;
+				overheadLight2.intensity = .1;
+				viewpointLight1.intensity = .3;
+				viewpointLight2.intensity = .3;	
+			}
 
-function doFrame() {
-    if (animating) {
-        updateForFrame();
-        render();
-        requestAnimationFrame(doFrame); 
-	}
-}
+			//Called when dark mode should be off (resets to original color/light values)
+			function doLightMode(){
+				renderer.setClearColor( 0xFDEDEC );
+				overheadLight1.intensity = .6;
+				overheadLight2.intensity = .6;
+				viewpointLight1.intensity = .6;
+				viewpointLight2.intensity = .6;
+			}
 
-function doAnimateCheckbox() {
-    let anim = document.getElementById("animate").checked;
-	if (anim != animating) {
-		animating = anim;
-		if (animating) {
-			doFrame();
-		}
-	}
-}
+			//Root function to run dark mode
+			function doDark() {
+				let dark = document.getElementById("dark-mode").checked;
+				if (dark != darkMode) {
+					darkMode = dark;
+					if (darkMode) {
+						doDarkMode();
+						render();
+					} else{
+						doLightMode();
+						render();
+					}
+				}
+			}
+			
+			//Allows rotation of the scene on its various axes
+			function doKey(event) {
+				let code = event.keyCode;
+				let rotated = true;
+				switch( code ) {
+					case 37: model.rotation.y -= 0.03;  break;    // left arrow
+					case 39: model.rotation.y +=  0.03; break;    // right arrow
+					case 38: model.rotation.x -= 0.03;  break;    // up arrow
+					case 40: model.rotation.x += 0.03;  break;    // down arrow
+					case 33: model.rotation.z -= 0.03;  break;    // page up
+					case 34: model.rotation.z += 0.03;  break;    // page down
+					case 36: model.rotation.set(0.2,0,0); break;  // home
+					default: rotated = false;
+				}
+				if (rotated) {
+					event.preventDefault();
+					if (!animating) {
+						render();
+					}
+				}
+			}
 
-function doDark() {
-    let dark = document.getElementById("dark-mode").checked;
-	if (dark != darkMode) {
-		darkMode = dark;
-		if (darkMode) {
-			doDarkMode();
-            render();
-		} else{
-            doLightMode();
-            render();
-        }
-	}
-}
+			//Initializes the scene
+			function init() {
+				try {
+					canvas = document.getElementById("glcanvas");
+					renderer = new THREE.WebGLRenderer( {
+						canvas: canvas,
+						antialias: true
+					} );
+				}
+				catch (e) {
+					document.getElementById("canvas-holder").innerHTML =
+							"<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
+					return;
+				}
+				//Add eventlistener and watch for state change of checkbox
+				document.addEventListener("keydown", doKey, false);
+				document.getElementById("animate").checked = false;
+				document.getElementById("animate").onchange = doAnimateCheckbox;
+				document.getElementById("dark-mode").checked = false;
+				document.getElementById("dark-mode").onchange = doDark;
+				createWorld();
+				render();
+			}
 
-function doKey(event) {
-	let code = event.keyCode;
-	let rotated = true;
-	switch( code ) {
-	    case 37: model.rotation.y -= 0.03;  break;    // left arrow
-	    case 39: model.rotation.y +=  0.03; break;    // right arrow
-	    case 38: model.rotation.x -= 0.03;  break;    // up arrow
-	    case 40: model.rotation.x += 0.03;  break;    // down arrow
-	    case 33: model.rotation.z -= 0.03;  break;    // page up
-	    case 34: model.rotation.z += 0.03;  break;    // page down
-	    case 36: model.rotation.set(0.2,0,0); break;  // home
-	    default: rotated = false;
-	}
-	if (rotated) {
-		event.preventDefault();
-		if (!animating) {
-			render();
-		}
-	}
-}
+		</script>
+	</head>
+	<body onload="init()">
 
-function init() {
-	try {
-	    canvas = document.getElementById("glcanvas");
-		renderer = new THREE.WebGLRenderer( {
-		    canvas: canvas,
-		    antialias: true
-		} );
-	}
-	catch (e) {
-		document.getElementById("canvas-holder").innerHTML =
-		         "<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
-		return;
-	}
-	document.addEventListener("keydown", doKey, false);
-	document.getElementById("animate").checked = false;
-	document.getElementById("animate").onchange = doAnimateCheckbox;
-    document.getElementById("dark-mode").checked = false;
-    document.getElementById("dark-mode").onchange = doDark;
-	createWorld();
-	render();
-}
+		<h2>Three.js Animated Model</h2>
 
-</script>
-</head>
-<body onload="init()">
+		<p><b>Use Arrow, PageUp, PageDown, and Home keys to rotate the model.</b></p>
 
-<h2>Three.js Animated Model</h2>
+		<p><label><input type="checkbox" id="animate">Animate</label>
+		</p>
 
-<p><b>Use Arrow, PageUp, PageDown, and Home keys to rotate the model.</b></p>
+		<p><label><input type="checkbox" id="dark-mode">Dark Mode</label>
+		</p>
 
-<p><label><input type="checkbox" id="animate">Animate</label>
-</p>
+		<div id="canvas-holder">
+			<canvas id="glcanvas" width="650" height="500"></canvas>
+		</div>
 
-<p><label><input type="checkbox" id="dark-mode">Dark Mode</label>
-</p>
-
-<div id="canvas-holder">
-<canvas id="glcanvas" width="650" height="500"></canvas>
-</div>
-
-</body>
+	</body>
 </html>
